@@ -1,7 +1,5 @@
 package tm.fantom.superdealtt.api.response;
 
-import android.net.Uri;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by fantom on 26-Sep-17.
  */
 
-public class OrgResponse {
+public final class OrgResponse {
 
     @SerializedName("repos_url")
     @Expose

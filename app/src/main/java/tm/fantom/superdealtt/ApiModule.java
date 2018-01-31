@@ -26,7 +26,7 @@ import tm.fantom.superdealtt.api.ApiService;
  */
 
 @Module
-public class ApiModule {
+public final class ApiModule {
     private static final String END_POINT = "https://api.github.com/";
     private static final int CONNECT_TIMEOUT = 15;
     private static final int WRITE_TIMEOUT = 15;

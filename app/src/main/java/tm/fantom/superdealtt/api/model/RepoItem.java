@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by fantom on 27-Sep-17.
  */
 
-public class RepoItem {
+public final class RepoItem {
 
     @SerializedName("id")
     @Expose

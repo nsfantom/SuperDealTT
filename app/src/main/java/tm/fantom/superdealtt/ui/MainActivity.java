@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import tm.fantom.superdealtt.R;
 
-public class MainActivity extends AppCompatActivity implements MainFragment.Listener {
+public final class MainActivity extends AppCompatActivity implements MainFragment.Listener {
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

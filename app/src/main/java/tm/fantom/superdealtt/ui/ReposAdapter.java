@@ -1,40 +1,38 @@
 package tm.fantom.superdealtt.ui;
 
+import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import tm.fantom.superdealtt.R;
 import tm.fantom.superdealtt.api.model.RepoItem;
+import tm.fantom.superdealtt.databinding.RepoItemBinding;
 
 /**
  * Created by fantom on 27-Sep-17.
  */
 
-public class ReposAdapter extends RecyclerView.Adapter<ReposAdapter.RepoHolder> {
+public final class ReposAdapter extends RecyclerView.Adapter<ReposAdapter.RepoHolder> {
 
     private ItemClickedListener itemClickedListener;
 
     private List<RepoItem> repoItems = new ArrayList<>();
 
     @Override public RepoHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.repo_item, parent, false);
-        return new RepoHolder(v);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        RepoItemBinding binding = RepoItemBinding.inflate(inflater, parent, false);
+        return new RepoHolder(binding.getRoot());
     }
 
     @Override public void onBindViewHolder(RepoHolder holder, int position) {
         if(position != holder.getAdapterPosition()) return;
 
         RepoItem repo = repoItems.get(position);
-        holder.name.setText(repo.getName());
-        holder.details.setText(repo.getDescription());
+        holder.binding.setRepoItem(repo);
     }
 
     public void setRepoItems(List<RepoItem> repoItems){
@@ -61,12 +59,11 @@ public class ReposAdapter extends RecyclerView.Adapter<ReposAdapter.RepoHolder> 
 
     class RepoHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        @BindView(R.id.tvRepoName) TextView name;
-        @BindView(R.id.tvRepoDetails) TextView details;
+        RepoItemBinding binding;
 
         public RepoHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            binding = DataBindingUtil.bind(itemView);
             itemView.setClickable(true);
             itemView.setOnClickListener(this);
         }

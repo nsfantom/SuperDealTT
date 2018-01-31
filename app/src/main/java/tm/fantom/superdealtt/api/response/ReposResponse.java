@@ -11,7 +11,7 @@ import tm.fantom.superdealtt.api.model.RepoItem;
  * Created by fantom on 27-Sep-17.
  */
 
-public class ReposResponse {
+public final class ReposResponse {
     @SerializedName("total_count")
     @Expose
     private Integer totalCount;

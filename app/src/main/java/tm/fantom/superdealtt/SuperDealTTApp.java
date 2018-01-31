@@ -9,7 +9,7 @@ import timber.log.Timber;
  * Created by fantom on 26-Sep-17.
  */
 
-public class SuperDealTTApp extends Application {
+public final class SuperDealTTApp extends Application {
 
     private SDComponent sdComponent;
 
