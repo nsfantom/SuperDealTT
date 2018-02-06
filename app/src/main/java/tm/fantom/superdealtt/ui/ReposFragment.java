@@ -38,6 +38,7 @@ public final class ReposFragment extends Fragment {
     private LinearLayoutManager layoutManager;
     private long totalCount;
     private FragmentReposBinding binding;
+    private GestureListener gestureListener;
 
     static ReposFragment newInstance(String name) {
         Bundle arguments = new Bundle();
@@ -47,14 +48,22 @@ public final class ReposFragment extends Fragment {
         return fragment;
     }
 
+    interface GestureListener{
+        void onAttachForGesture(View view);
+    }
+
     private String getName() {
         return getArguments().getString(KEY_REPOS_NAME);
     }
 
     @Override public void onAttach(Context context) {
+        if (!(getActivity() instanceof GestureListener)) {
+            throw new IllegalStateException("Activity must implement fragment Listener.");
+        }
         super.onAttach(context);
         SuperDealTTApp.getComponent(context).inject(this);
         adapter = new ReposAdapter();
+        gestureListener = (GestureListener)getActivity();
     }
 
     @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -67,6 +76,7 @@ public final class ReposFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //ButterKnife.bind(this, view);
         binding.tvLabel.setText(getName());
+        gestureListener.onAttachForGesture(binding.getRoot());
         binding.rvRepositories.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvRepositories.setAdapter(adapter);
         layoutManager = LinearLayoutManager.class.cast(binding.rvRepositories.getLayoutManager());
