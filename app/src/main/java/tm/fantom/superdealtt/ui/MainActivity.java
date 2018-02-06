@@ -84,8 +84,11 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
                         dY = view.getY() - ev.getRawY();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        ObjectAnimator moveX = ObjectAnimator.ofFloat(view,"x", ev.getRawX()+dX);
-                        ObjectAnimator moveY = ObjectAnimator.ofFloat(view,"y",ev.getRawY()+dY);
+                        float movex = ev.getRawX()+dX;
+                        float movey = ev.getRawY()+dY;
+                        // TODO: 06-Feb-18 hit bounds
+                        ObjectAnimator moveX = ObjectAnimator.ofFloat(view,"x", movex);
+                        ObjectAnimator moveY = ObjectAnimator.ofFloat(view,"y", movey);
                         moveX.setDuration(0);
                         moveY.setDuration(0);
 
