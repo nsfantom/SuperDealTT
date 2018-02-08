@@ -89,24 +89,39 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
                         dY = view.getY() - ev.getRawY();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        float movex = ev.getRawX() + dX;
-                        float movey = ev.getRawY() + dY;
-                        float width = view.getWidth();
-                        float scaledWidth = view.getWidth()*1f/mScale;
-//                        float positionX = ;
-                        Timber.e("width: %s Scaled: %s", view.getWidth(), scaledWidth);
-                        if (movex < view.getWidth() - scaledWidth) movex = view.getWidth()-scaledWidth;
-                        if (movex + view.getWidth() / maxScale > view.getRootView().getLayoutParams().width + view.getWidth())
-                            movex = view.getRootView().getLayoutParams().width + view.getWidth() - view.getWidth() / maxScale;
+                        float moveX = ev.getRawX() + dX;
+                        float moveY = ev.getRawY() + dY;
+                        float width = view.getWidth();                      // layout Width, can be parent
+                        float height = view.getHeight();                    // layout Height, can be parent
+                        float scaledWidth = width * 1f / mScale;
+                        float scaledHeight = height * 1f / mScale;
+                        if (1f / mScale <= 1f) {
+                            if (moveX + width / 2 - scaledWidth / 2 <= 0)       // left minimum
+                                moveX = scaledWidth / 2 - width / 2;
+                            if (moveX - (width / 2 - scaledWidth / 2) >= 0)     // right minimum
+                                moveX = width / 2 - scaledWidth / 2;
+                            if (moveY + height / 2 - scaledHeight / 2 <= 0)     // top minimum
+                                moveY = scaledHeight / 2 - height / 2;
+                            if (moveY - (height / 2 - scaledHeight / 2) >= 0)   // bottom minimum
+                                moveY = height / 2 - scaledHeight / 2;
+                        } else {
+                            if (moveX + scaledWidth / 2 - width / 2 <= 0)         // left maximum
+                                moveX = width / 2 - scaledWidth / 2;
+                            if (moveX - (scaledWidth / 2 - width / 2) >= 0)       // right maximum
+                                moveX = scaledWidth / 2 - width / 2;
+                            if (moveY + scaledHeight / 2 - height / 2 <= 0)         // top maximum
+                                moveY = height / 2 - scaledHeight / 2;
+                            if (moveY - (scaledHeight / 2 - height / 2) >= 0)       // bottom maximum
+                                moveY = scaledHeight / 2 - height / 2;
 
-                        // TODO: 06-Feb-18 hit bounds
-                        ObjectAnimator moveX = ObjectAnimator.ofFloat(view, "x", movex);
-                        ObjectAnimator moveY = ObjectAnimator.ofFloat(view, "y", movey);
-                        moveX.setDuration(0);
-                        moveY.setDuration(0);
+                        }
+                        ObjectAnimator moveOAX = ObjectAnimator.ofFloat(view, "x", moveX);
+                        ObjectAnimator moveOAY = ObjectAnimator.ofFloat(view, "y", moveY);
+                        moveOAX.setDuration(0);
+                        moveOAY.setDuration(0);
 
                         AnimatorSet scaleDown = new AnimatorSet();
-                        scaleDown.play(moveX).with(moveY);
+                        scaleDown.play(moveOAX).with(moveOAY);
                         scaleDown.start();
                         break;
                     default:
