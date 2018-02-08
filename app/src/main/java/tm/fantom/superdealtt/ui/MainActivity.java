@@ -10,14 +10,18 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import timber.log.Timber;
 import tm.fantom.superdealtt.R;
 
-public final class MainActivity extends AppCompatActivity implements MainFragment.Listener,ReposFragment.GestureListener {
+public final class MainActivity extends AppCompatActivity implements MainFragment.Listener, ReposFragment.GestureListener {
     private float mScale = 1f;
+    private final float maxScale = 5f;
+    private final float minScale = 0.5f;
     private ScaleGestureDetector mScaleDetector;
     GestureDetector gestureDetector;
 
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -27,7 +31,8 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
         gestureDetector = new GestureDetector(new GestureListener());
     }
 
-    @Override public void onOrgClicked(String name) {
+    @Override
+    public void onOrgClicked(String name) {
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left,
                         R.anim.slide_out_right)
@@ -39,8 +44,8 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         super.dispatchTouchEvent(event);
-        if(mScaleDetector!=null)
-        mScaleDetector.onTouchEvent(event);
+        if (mScaleDetector != null)
+            mScaleDetector.onTouchEvent(event);
         gestureDetector.onTouchEvent(event);
         return gestureDetector.onTouchEvent(event);
     }
@@ -48,24 +53,22 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
     @Override
     public void onAttachForGesture(View view) {
         // animation for scalling
-        mScaleDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener()
-        {
+        mScaleDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
-            public boolean onScale(ScaleGestureDetector detector)
-            {
+            public boolean onScale(ScaleGestureDetector detector) {
                 float scale = 1 - detector.getScaleFactor();
 
                 float prevScale = mScale;
                 mScale += scale;
 
-                if (mScale < 0.5f) // Minimum scale condition:
-                    mScale = 0.5f;
+                if (mScale < minScale) // Minimum scale condition:
+                    mScale = minScale;
 
-                if (mScale > 5f) // Maximum scale condition:
-                    mScale = 5f;
+                if (mScale > maxScale) // Maximum scale condition:
+                    mScale = maxScale;
 
-                PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f/prevScale, 1f/mScale);
-                PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f/prevScale, 1f/mScale);
+                PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f / prevScale, 1f / mScale);
+                PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f / prevScale, 1f / mScale);
                 ObjectAnimator scaleAnimator = ObjectAnimator.ofPropertyValuesHolder(view, pvhX, pvhY);
                 AnimatorSet setAnimation = new AnimatorSet();
                 setAnimation.play(scaleAnimator);
@@ -74,7 +77,9 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
             }
         });
 
-        gestureDetector = new GestureDetector(this, new GestureListener()){float dX,dY;
+        gestureDetector = new GestureDetector(this, new GestureListener()) {
+            float dX, dY;
+
             @Override
             public boolean onTouchEvent(MotionEvent ev) {
 
@@ -84,16 +89,39 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
                         dY = view.getY() - ev.getRawY();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        float movex = ev.getRawX()+dX;
-                        float movey = ev.getRawY()+dY;
-                        // TODO: 06-Feb-18 hit bounds
-                        ObjectAnimator moveX = ObjectAnimator.ofFloat(view,"x", movex);
-                        ObjectAnimator moveY = ObjectAnimator.ofFloat(view,"y", movey);
-                        moveX.setDuration(0);
-                        moveY.setDuration(0);
+                        float moveX = ev.getRawX() + dX;
+                        float moveY = ev.getRawY() + dY;
+                        float width = view.getWidth();                      // layout Width, can be parent
+                        float height = view.getHeight();                    // layout Height, can be parent
+                        float scaledWidth = width * 1f / mScale;
+                        float scaledHeight = height * 1f / mScale;
+                        if (1f / mScale <= 1f) {
+                            if (moveX + width / 2 - scaledWidth / 2 <= 0)       // left minimum
+                                moveX = scaledWidth / 2 - width / 2;
+                            if (moveX - (width / 2 - scaledWidth / 2) >= 0)     // right minimum
+                                moveX = width / 2 - scaledWidth / 2;
+                            if (moveY + height / 2 - scaledHeight / 2 <= 0)     // top minimum
+                                moveY = scaledHeight / 2 - height / 2;
+                            if (moveY - (height / 2 - scaledHeight / 2) >= 0)   // bottom minimum
+                                moveY = height / 2 - scaledHeight / 2;
+                        } else {
+                            if (moveX + scaledWidth / 2 - width / 2 <= 0)         // left maximum
+                                moveX = width / 2 - scaledWidth / 2;
+                            if (moveX - (scaledWidth / 2 - width / 2) >= 0)       // right maximum
+                                moveX = scaledWidth / 2 - width / 2;
+                            if (moveY + scaledHeight / 2 - height / 2 <= 0)         // top maximum
+                                moveY = height / 2 - scaledHeight / 2;
+                            if (moveY - (scaledHeight / 2 - height / 2) >= 0)       // bottom maximum
+                                moveY = scaledHeight / 2 - height / 2;
+
+                        }
+                        ObjectAnimator moveOAX = ObjectAnimator.ofFloat(view, "x", moveX);
+                        ObjectAnimator moveOAY = ObjectAnimator.ofFloat(view, "y", moveY);
+                        moveOAX.setDuration(0);
+                        moveOAY.setDuration(0);
 
                         AnimatorSet scaleDown = new AnimatorSet();
-                        scaleDown.play(moveX).with(moveY);
+                        scaleDown.play(moveOAX).with(moveOAY);
                         scaleDown.start();
                         break;
                     default:
@@ -111,6 +139,7 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
         public boolean onDown(MotionEvent e) {
             return true;
         }
+
         // event when double tap occurs
         @Override
         public boolean onDoubleTap(MotionEvent e) {
