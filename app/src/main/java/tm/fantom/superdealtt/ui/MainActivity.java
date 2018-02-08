@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import timber.log.Timber;
 import tm.fantom.superdealtt.R;
 
 public final class MainActivity extends AppCompatActivity implements MainFragment.Listener, ReposFragment.GestureListener {
@@ -113,7 +112,6 @@ public final class MainActivity extends AppCompatActivity implements MainFragmen
                                 moveY = height / 2 - scaledHeight / 2;
                             if (moveY - (scaledHeight / 2 - height / 2) >= 0)       // bottom maximum
                                 moveY = scaledHeight / 2 - height / 2;
-
                         }
                         ObjectAnimator moveOAX = ObjectAnimator.ofFloat(view, "x", moveX);
                         ObjectAnimator moveOAY = ObjectAnimator.ofFloat(view, "y", moveY);
